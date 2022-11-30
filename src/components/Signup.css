@@ -1,0 +1,6 @@
+.Signup {
+    @apply flex h-screen w-screen overflow-hidden items-center justify-center;
+    background: url("./../assets/auth-bg.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
