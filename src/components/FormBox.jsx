@@ -1,17 +1,54 @@
+import axios from "axios";
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
+import { startLoading, stopLoading } from "../store/loaderReducer";
+import { baseUrl, host, origin, xRapidApiKey } from "../utils/config";
 
 import "./FormBox.css";
 
 const FormBox = ({ type = "login" }) => {
+  const dispatch = useDispatch();
+
   const [email, setEmail] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [password, setPassword] = useState("");
   const isSignup = type === "signup";
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    dispatch(startLoading());
+    try {
+      if (isSignup) {
+        const data = {
+          firstName,
+          lastName,
+          password,
+          email,
+        };
+        // const { data: resData } = await axios.post();
+      } else {
+        //for login
+
+        const data = {
+          email,
+          password,
+        };
+
+        // const {data:resData} = await axios.post()
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      dispatch(stopLoading());
+    }
+
+    e.target.reset();
+  };
+
   return (
-    <form>
+    <form onSubmit={handleSubmit}>
       {isSignup ? (
         <>
           <h3>Welcome to Testify</h3>
