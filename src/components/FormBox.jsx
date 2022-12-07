@@ -1,20 +1,42 @@
 import axios from "axios";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
-import { startLoading, stopLoading } from "../store/loaderReducer";
-import { baseUrl, host, origin, xRapidApiKey } from "../utils/config";
+import { Link, useNavigate } from "react-router-dom";
+import { login } from "../store/authReducer";
+import {
+  closeToast,
+  showToast,
+  startLoading,
+  stopLoading,
+} from "../store/loaderReducer";
+import { baseUrl } from "../utils/config";
 
 import "./FormBox.css";
 
 const FormBox = ({ type = "login" }) => {
   const dispatch = useDispatch();
 
+  console.log({ type });
+
   const [email, setEmail] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  const [fullname, setFullName] = useState("");
   const [password, setPassword] = useState("");
   const isSignup = type === "signup";
+
+  const navigate = useNavigate();
+
+  const clearField = () => {
+    setEmail("");
+    setFullName("");
+    setPassword("");
+  };
+
+  const _showToast = (toastMessage, delay = 2000) => {
+    dispatch(showToast(toastMessage));
+    setTimeout(() => {
+      dispatch(closeToast());
+    }, delay);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,12 +44,16 @@ const FormBox = ({ type = "login" }) => {
     try {
       if (isSignup) {
         const data = {
-          firstName,
-          lastName,
+          fullname,
           password,
           email,
         };
-        // const { data: resData } = await axios.post();
+        const { data: resData } = await axios.post(`${baseUrl}/signup`, data);
+        _showToast(resData.message);
+
+        console.log(resData);
+
+        navigate("/login");
       } else {
         //for login
 
@@ -36,7 +62,19 @@ const FormBox = ({ type = "login" }) => {
           password,
         };
 
-        // const {data:resData} = await axios.post()
+        const { data: resData } = await axios({
+          method: "POST",
+          url: `${baseUrl}/login`,
+          data,
+        });
+        //  TODO: toastSuccess(resData.message)
+        const userData = resData.payload;
+        console.log(resData);
+        _showToast(resData.message, 5000);
+
+        dispatch(login(userData));
+
+        navigate("/dashboard", { replace: true });
       }
     } catch (error) {
       console.log(error);
@@ -44,7 +82,7 @@ const FormBox = ({ type = "login" }) => {
       dispatch(stopLoading());
     }
 
-    e.target.reset();
+    clearField();
   };
 
   return (
@@ -61,29 +99,21 @@ const FormBox = ({ type = "login" }) => {
         </>
       )}
       {isSignup && (
-        <>
-          <input
-            type="text"
-            placeholder="FirstName"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-            required
-          />
-          <input
-            type="text"
-            placeholder="LastName"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-            required
-          />
-        </>
+        <input
+          type="text"
+          placeholder="FullName"
+          value={fullname}
+          onChange={(e) => setFullName(e.target.value)}
+          required
+        />
       )}
       <input
-        type="text"
+        type="email"
         placeholder="Email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         required
+        autoComplete="true"
       />
 
       <input

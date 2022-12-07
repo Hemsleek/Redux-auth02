@@ -1,7 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-    isLoading: false
+    isLoading: false,
+    toast: {
+        state: false,
+        toastMessage: ''
+    }
+
 }
 
 const loaderReducer = createSlice({
@@ -13,11 +18,18 @@ const loaderReducer = createSlice({
         },
         stopLoading(state, action) {
             return { ...state, isLoading: false }
+        },
+        showToast(state, action) {
+            const toastMessage = action.payload
+            return { ...state, toast: { state: true, toastMessage } }
+        },
+        closeToast(state, action) {
+            return { ...state, toast: { state: false, toastMessage: '' } }
         }
 
     }
 })
 
-export const { startLoading, stopLoading } = loaderReducer.actions
+export const { startLoading, stopLoading, closeToast, showToast } = loaderReducer.actions
 
 export default loaderReducer.reducer
